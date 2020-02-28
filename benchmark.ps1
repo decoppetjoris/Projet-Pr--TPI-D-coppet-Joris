@@ -67,14 +67,21 @@ function GetData {
 }
 
 # fonction qui sert a ecrire dans le CSV
-function WriteCSV($CSVData) {
-    
+function WriteCSV {
+    #Met en place le parametre pour la fonction
+    Param (
+        [string]$Data
+    )
+    #Ecrit les data dans le fichier CSV
+    $LogString | Out-File -FilePath $LogPath -Append
 }
 
 # fonction qui sert a ecrire un message dans le fichier de log
 Function WriteLog {
-    #Le Param pour le message
-    Param ([string]$LogString)
+    #Le parametre pour la fonction qui contient le message qui sera ecrit dans le fichier log
+    Param (
+        [string]$LogString
+    )
     #Ecrit le message dans le fichier de Log
     $LogString | Out-File -FilePath $LogPath -Append
 }
@@ -83,6 +90,8 @@ Function WriteLog {
 $LogPath = "Log\$(get-date -f yyyy.dd.MM_HH.mm).log"
 
 # Met en place le chemin pour le fichier CSV qui contient les données
+$CsvPath
+
 <#
 #récuperer les datas
 $Info = GetData;
