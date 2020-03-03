@@ -31,23 +31,66 @@ function GetData {
     try{
         $DataDate = Get-Date -UFormat "%Y.%d.%A"
     }catch{
-        
+        WriteLog "Erreur, la date n a pas ete generee correctement"
+        Exit
     }
-    $DataDate
+
     #Heure
-    $DataHeure
+    try{
+        $DataHeure = Get-Date -UFormat "%T"
+    }catch{
+        WriteLog "Erreur, l heure n a pas ete generee correctement"
+        Exit
+    }
+
     #Nom
-    $DataNom
+    try{
+        $DataNom = $env:COMPUTERNAME
+    }catch{
+        WriteLog "Erreur, le nom de l'ordinateur n a pas ete generee correctement"
+        Exit
+    }
+    
     #Utilisateur connecté
-    $DataUser
+    try{
+        $DataUser = $env:UserName
+    }catch{
+        WriteLog "Erreur, le nom de l utilisateur connecte n a pas ete generee correctement"
+        Exit
+    }
+    
     #Modèle
-    $DataModele
+    try{
+        $DataModele = (Get-WmiObject -Class:Win32_ComputerSystem).Model
+    }catch{
+        WriteLog "Erreur, le model du pc n a pas pu etre recupere"
+        Exit
+    }
+    
     #SN
-    $DataSn
+    try{
+        $DataSn = (Get-WmiObject -Class:Win32_BIOS).SerialNumber
+    }catch{
+        WriteLog "Erreur, le sn du pc n a pas pu etre recupere"
+        Exit
+    }
+    
     #MAC
-    $DataMac
+    try{
+        $DataMac
+    }catch{
+        WriteLog "Erreur, la Mac du pc n a pas pu etre recupere"
+        Exit
+    }
+    
     #IP
-    $DataIp
+    try{
+        $DataIp
+    }catch{
+        WriteLog "Erreur, l adresse IP du pc n a pas pu etre recupere"
+        Exit
+    }
+    
 
     # Calculer les datas
     #Depuis combien de temps le PC est allume
@@ -63,7 +106,9 @@ function GetData {
     #Le taux de transfert d'un fichier sur le LAN
 
     # Mettre toutes les datas dans une var
-    $Data
+    $Data = $DataDate + ";" + $DataHeure + ";" + $DataNom + ";" + $DataUser + ";" + $DataModele + ";" + $DataSn + ";" + $DataMac + ";" + $DataIp
+
+    return $Data
 }
 
 # fonction qui sert a ecrire dans le CSV
@@ -72,8 +117,14 @@ function WriteCSV {
     Param (
         [string]$Data
     )
-    #Ecrit les data dans le fichier CSV
-    $LogString | Out-File -FilePath $LogPath -Append
+    try{
+        #Ecrit les data dans le fichier CSV
+        $Data | Export-Csv -Path $CsvPath -NoTypeInformation -Delimiter ";"
+    }catch{
+        WriteLog "Erreur, l ecriture dans le fichier CSV n a pas fonctionne"
+        Exite
+    }
+    
 }
 
 # fonction qui sert a ecrire un message dans le fichier de log
@@ -87,15 +138,13 @@ Function WriteLog {
 }
 
 # Cree le chemin pour le fichier de log
-$LogPath = "Log\$(get-date -f yyyy.dd.MM_HH.mm).log"
+$LogPath = "C:\Projet-Pr--TPI-D-coppet-Joris\Log\$(get-date -f yyyy.dd.MM.HH.mm).log"
 
 # Met en place le chemin pour le fichier CSV qui contient les données
-$CsvPath
+$CsvPath = "C:\Projet-Pr--TPI-D-coppet-Joris\Data\data.csv"
 
-<#
-#récuperer les datas
-$Info = GetData;
+$Info = GetData
 
-# ecrire les datas dans le CSV
-WriteCSV $Info;
-#>
+WriteCSV $Info
+
+WriteLog "sdfuigoiufhiou"
