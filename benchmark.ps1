@@ -29,7 +29,7 @@ function GetData {
     # Prendre des infos sur le PC
     #Date
     try{
-        $DataDate = Get-Date -UFormat "%Y.%d.%A"
+        $DataDate = Get-Date -f yyyy.dd.MM
     }catch{
         WriteLog "Erreur, la date n a pas ete generee correctement"
         Exit
@@ -77,7 +77,14 @@ function GetData {
     
     #MAC
     try{
-        $DataMac
+        $DataAllMac = get-wmiobject -class "Win32_NetworkAdapterConfiguration" |Where{$_.IpEnabled -Match "True"}  
+     
+        foreach ($DataAllMacItem in $DataAllMac) {
+          
+            if($DataAllMacItem.Description -notlike "*VMware*"){
+                $DataMac = $DataAllMacItem.MACAddress
+            }
+        } 
     }catch{
         WriteLog "Erreur, la Mac du pc n a pas pu etre recupere"
         Exit
@@ -85,7 +92,8 @@ function GetData {
     
     #IP
     try{
-        $DataIp
+        $info = Test-Connection -ComputerName (hostname) -count 1 | Select IPV4Address
+        $DataIp = $info.IPV4Address
     }catch{
         WriteLog "Erreur, l adresse IP du pc n a pas pu etre recupere"
         Exit
@@ -145,6 +153,4 @@ $CsvPath = "C:\Projet-Pr--TPI-D-coppet-Joris\Data\data.csv"
 
 $Info = GetData
 
-WriteCSV $Info
-
-WriteLog "sdfuigoiufhiou"
+WriteLog $Info
