@@ -101,7 +101,7 @@ function GetData {
     #Depuis combien de temps le PC est allume
     try{
         $os = Get-WmiObject -Class win32_operatingsystem
-        $CalcTempsAlumPc = (get-date) - $os.ConvertToDateTime($os.LastBootUpTime)
+        $CalcTempsAlumPc = New-TimeSpan -End $(get-date) -Start $os.ConvertToDateTime($os.LastBootUpTime)
     }catch{
         WriteLog "Erreur, impossible de savoir depuis combien de temps le PC est allume"
         Exit
@@ -112,7 +112,7 @@ function GetData {
         $QuserData = quser
         ForEach ($Quser in $QuserData){
             if ($Quser.SubString(1, 20).Trim() -like $env:UserName){
-                $CalcTempsAlumSession = $Quser.SubString(65)
+                $CalcTempsAlumSession = New-TimeSpan -End $(get-date) -Start $Quser.SubString(65)
             }
         }
     }catch{
@@ -186,7 +186,7 @@ function WriteCSV {
     )
     try{
         #Ecrit les data dans le fichier CSV
-        $Data | Export-Csv -Path $CsvPath -NoTypeInformation -Delimiter ";"
+        $Data | add-content -path $CsvPath
     }catch{
         WriteLog "Erreur, l ecriture dans le fichier CSV n a pas fonctionne"
         Exit
@@ -209,8 +209,8 @@ $LogPath = "C:\Projet-Pr--TPI-D-coppet-Joris\Log\$(get-date -f yyyy.dd.MM.HH.mm)
 
 # Met en place le chemin pour le fichier CSV qui contient les données
 $CsvPath = "C:\Projet-Pr--TPI-D-coppet-Joris\Data\data.csv"
-if(!Test-Path($CsvPath)){
-    
+if(-Not (Test-Path($CsvPath))){
+   "Date;Heure" | add-content -path $CsvPath
 }
 
 $Info = GetData
