@@ -196,18 +196,24 @@ function GetData {
     }
     $Calc += ";" + $CalcTempExcel
     #Le taux de transfert d'un fichier sur le LAN
-    try{
-        # Stock les infos du fichier dans une var
-        $item = get-item "$Path\Fichier a ouvrir\text1.txt"
-        #Calcule le temps d'execution de la commande
-        $time = Measure-Command -Expression {
-            #Copie le fichier sur le Lan
-            Copy-Item -literalpath "$Path\Fichier a ouvrir\text1.txt" "$LanLink\text2.txt"
-        } 
-        #Calcule le taux de transfert
-        $CalcTauxTransfert = ($item.length/1024/1024) / $time.TotalSeconds
-    }catch{
-        WriteLog "Erreur, le taux de transfert d'un fichier sur le Lan n a pas pu etre calcule"
+    #Verifie que le chemin specifie en argument soit valide
+    if(-Not(Test-Path($LanLink))){
+        #Ecrit un message d'erreur
+        WriteLog "Erreur, le chemin spécifé n'est pas valide"
+    }else{
+        try{
+            # Stock les infos du fichier dans une var
+            $item = get-item "$Path\Fichier a ouvrir\text1.txt"
+            #Calcule le temps d'execution de la commande
+            $time = Measure-Command -Expression {
+                #Copie le fichier sur le Lan
+                Copy-Item -literalpath "$Path\Fichier a ouvrir\text1.txt" "$LanLink\text2.txt"
+            } 
+            #Calcule le taux de transfert
+            $CalcTauxTransfert = ($item.length/1024/1024) / $time.TotalSeconds
+        }catch{
+            WriteLog "Erreur, le taux de transfert d'un fichier sur le Lan n a pas pu etre calcule"
+        }
     }
     $Calc += ";" +  $CalcTauxTransfert
 
@@ -243,6 +249,9 @@ Function WriteLog {
 }
 #Prend le chemin du script
 $Path = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
+
+
+
 
 # Cree le chemin pour le fichier de log
 $LogPath = "$Path\Log\$(get-date -f yyyy.dd.MM.HH.mm).log"
