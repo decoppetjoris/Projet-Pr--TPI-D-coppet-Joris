@@ -15,14 +15,24 @@ Les données qui servent à connaitre l'état du PC sont le temps d'allumage, le te
 
 Ecrit dans le log et/ou dans le CSV
 
+.INPUTS
+
+Ecrit le chemin sur un fichier partager pour pouvoir calculer la vitesse d'ecriture sur le Lan
+
 .EXAMPLE
 
 Command Prompt
 
-C:\> PowerShell.exe -ExecutionPolicy Bypass ^
--File "%CD%/benchmark.ps1" ^
+C:\> PowerShell.exe -ExecutionPolicy Bypass
+-File "%CD%/benchmark.ps1"
+-LanLink "x:\temps"
 
 #>
+
+Param (
+    [Parameter(Mandatory=$True)]
+    [System.IO.FileInfo]$LanLink
+)
 
 # fontion qui sert a recuperer les donnees sur le PC
 function GetData {
@@ -192,7 +202,7 @@ function GetData {
         #Calcule le temps d'execution de la commande
         $time = Measure-Command -Expression {
             #Copie le fichier sur le Lan
-            Copy-Item -literalpath "$Path\Fichier a ouvrir\text1.txt" "X:\temps\text2.txt"
+            Copy-Item -literalpath "$Path\Fichier a ouvrir\text1.txt" "$LanLink\text2.txt"
         } 
         #Calcule le taux de transfert
         $CalcTauxTransfert = ($item.length/1024/1024) / $time.TotalSeconds
