@@ -31,7 +31,10 @@ C:\> PowerShell.exe -ExecutionPolicy Bypass
 
 Param (
     [Parameter(Mandatory=$True)]
-    [System.IO.FileInfo]$LanLink
+    [System.IO.FileInfo]$LanLink,
+
+    [Parameter(Mandatory=$True)]
+    [System.IO.FileInfo]$LanCSV
 )
 
 # fontion qui sert a recuperer les donnees sur le PC
@@ -199,7 +202,7 @@ function GetData {
     #Verifie que le chemin specifie en argument soit valide
     if(-Not(Test-Path($LanLink))){
         #Ecrit un message d'erreur
-        WriteLog "Erreur, le chemin spécifé n'est pas valide"
+        WriteLog "Erreur, le chemin spécifé pour le dossier partage vn'est pas valide"
     }else{
         try{
             # Stock les infos du fichier dans une var
@@ -257,10 +260,15 @@ $Path = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
 $LogPath = "$Path\Log\$(get-date -f yyyy.dd.MM.HH.mm).log"
 
 # Met en place le chemin pour le fichier CSV qui contient les données
-$CsvPath = "$Path\Data\data.csv"
-if(-Not (Test-Path($CsvPath))){
-    #Creation du fichier avec les entetes
-    "Date;Heure;Nom du PC;Utilisateur connecté;Modèle du PC;le Serial Number;l'adresse MAC;l'adresse IP;Depuis combien de temps le PC est allume;Depuis combien de temps la session est ouverte;La latence de la passerelle;Le temps d'ouverture d'un fichier Word;Le temps d'ouverture d'un fichier Excel;Le taux de transfert d'un fichier sur le LAN [M/s]" | add-content -path $CsvPath
+$CsvPath = "$LanCSV\data.csv"
+if(-Not(Test-Path($LanCSV))){
+        #Ecrit un message d'erreur
+        WriteLog "Erreur, le chemin spécifé pour le CSV n'est pas valide"
+}else{
+    if(-Not (Test-Path($CsvPath))){
+        #Creation du fichier avec les entetes
+        "Date;Heure;Nom du PC;Utilisateur connecté;Modèle du PC;le Serial Number;l'adresse MAC;l'adresse IP;Depuis combien de temps le PC est allume;Depuis combien de temps la session est ouverte;La latence de la passerelle;Le temps d'ouverture d'un fichier Word;Le temps d'ouverture d'un fichier Excel;Le taux de transfert d'un fichier sur le LAN [M/s]" | add-content -path $CsvPath
+    }
 }
 
 # Lance la fonction qui calcul les donnees
