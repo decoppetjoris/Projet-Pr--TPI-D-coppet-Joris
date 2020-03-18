@@ -264,6 +264,7 @@ $CsvPath = "$LanCSV\data.csv"
 if(-Not(Test-Path($LanCSV))){
         #Ecrit un message d'erreur
         WriteLog "Erreur, le chemin spécifé pour le CSV n'est pas valide"
+        Exit
 }else{
     if(-Not (Test-Path($CsvPath))){
         #Creation du fichier avec les entetes
